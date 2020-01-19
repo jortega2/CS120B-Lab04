@@ -18,64 +18,56 @@
 // wait1 - no changes to pins, stay in state until user presses PA0 to switch lights
 // on2 - turn off PB0, turn on PB1, stay in the state if user still has PBA held down to prevent unwanted changes
 // wait2 - no changes to pins, stay in state until user presses PA0 to switch lights
-enum sm_states { init, on1, wait1, on2, wait2 } sm;
+enum add_states { init, interphase, inc, dec, reset } addsm;
 
-void sm_tick(){
+void add_states(){
 	//transitions
-	switch(sm) {
+	switch(addsm) {
 		case init:
-			sm = on1;
+			addsm = interphase;
 			break;
-		case on1:
+		case interphase:
 			if (PINA == 0x01){
-				sm = on1;
+				addsm = inc;
 			}
-			else if (PINA == 0x00){
-				sm = wait1;
-			}
-			break;
-		case wait1:;
-                        if (PINA == 0x01){
-                                sm = on2;
-			}
-                        else if (PINA == 0x00){
-                                sm = wait1;
+			else if (PINA == 0x02){
+				addsm = dec;
+			}else if (PINA == 0x00){
+				addsm = reset;
+			} else {
+				addsm = interphase;
 			}
 			break;
-		case on2:
-                        if (PINA == 0x01){
-                                sm = on2;
-			}
-                        else if (PINA == 0x00){
-                                sm = wait2;
-			}
+		case inc:
+			addsm = interphase;
 			break;
-		case wait2:
-                        if (PINA == 0x01){
-                                sm = on1;;
-			}
-                        else if (PINA == 0x00){
-                                sm = wait2;
-			}
+		case dec:
+			addsm = interphase;
+			break;
+		case reset:
+			addsm = interphase;
 			break;
 		default:
-			sm = init;
+			addsm = interphase;
 			break;
 	}//transitions
 	
 	//state actions
-	switch(sm) {
+	switch(addsm) {
                 case init:
                         break;
-                case on1:
-                        PORTB = 0x01;
+                case interphase:
 			break;
-                case wait1:
+                case inc:
+			if (PORTC < 0x09)
+				PORTC = (PORTC + 0x01);
                         break;
-                case on2:
-                        PORTB = 0x02;
+                case dec:
+			if (PORTC > 0x00)
+                        	PORTC = (PORTC - 0x01);
                         break;
-                case wait2:
+                case reset:
+			PORTC = 0x07;
                         break;
                 default:
                         break;
@@ -84,12 +76,12 @@ void sm_tick(){
 int main(void) {
     /* Insert DDR and PORT initializations */
 	DDRA = 0x00; PORTA = 0xFF;
-	DDRB = 0xFF; PORTB = 0x00;
-	PORTB = 0x01;
-	sm  = init;
+	DDRC = 0xFF; PORTC = 0x00;
+	PORTC = 0x07;
+	addsm  = init;
     /* Insert your solution below */
     while (1) {
-	sm_tick();
+	add_states();
     }
     return 1;
 }

@@ -25,34 +25,58 @@
 
 echo ======================================================\n
 echo Running all tests..."\n\n
-#test sequeence from init: !A0, A0, A0, A0, => PORTB: 1
-test "PINA: 0x00, 0x01, 0x01, 0x01 => PB0 = 0, PB1 = 1, state:on2"
-set sm = init 
-setPINA 0x00
-continue 2
+#test sequeence from init: A0 & !A1, A0 & !A1, A0 & !A1, !A0 & A1, => PORTC: 8
+test "PINA: 0x01, 0x01, 0x01, 0x10 => PC = 0x08  state:main"
+set addsm = init 
 setPINA 0x01
 continue 2
 setPINA 0x01
 continue 2
 setPINA 0x01
 continue 2
-expectPORTB 0x02
-expect sm on2
+setPINA 0x02
+continue 2
+expectPORTC 0x08
+expect addsm dec
 checkResult
 
-#test sequeence from on2: !A0, A0,! A0, => PORTB: 1
-test "PINA: 0x00, 0x01, 0x00  => PB0 = 1, PB1 = 0, state:wait1"
-set sm = on2
-setPINA 0x00
+#test sequeence from init: !A0 & A1, !A0 & A1, !A0 & A1, !A0 & A1,... !A0 & A1 => PORTC: 0
+test "PINA: 0x01, 0x01, 0x01, 0x10 => PC = 0x08  state:main"
+set addsm = init
+setPINA 0x02
 continue 2
-setPINA 0x01
+setPINA 0x02
 continue 2
-setPINA 0x00
+setPINA 0x02
 continue 2
-expectPORTB 0x01
-expect sm wait1
+setPINA 0x02
+continue 2
+setPINA 0x02
+continue 2
+setPINA 0x02
+continue 2
+setPINA 0x02
+continue 2
+setPINA 0x02
+continue 2
+expectPORTC 0x00
+expect addsm dec
 checkResult
-# Add tests below
+
+#test sequeence from init: A0 & !A1, A0 & !A1, A0 & !A1, !A0 & A1, => PORTC: 8
+test "PINA: 0x01, 0x01, 0x01, 0x10 => PC = 0x08  state:main"
+set addsm = init
+setPINA 0x02
+continue 1
+setPINA 0x02
+continue 1
+setPINA 0x02
+continue 1
+setPINA 0x02
+continue 1
+expectPORTC 0x03
+expect addsm dec
+checkResult
 
 # Report on how many tests passed/tests ran
 set $passed=$tests-$failed
