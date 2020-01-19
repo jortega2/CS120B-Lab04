@@ -1,0 +1,7 @@
+Breakpoint 1 at 0x204: file source/main.c, line 91.
+Note: automatically using hardware breakpoints for read-only addresses.
+======================================================
+Running all tests..."
+
+"PINA: 0x00, 0x01, 0x01, 0x01 => PB0 = 0, PB1 = 1, state:on2"..."PINA: 0x00, 0x01, 0x00  => PB0 = 1, PB1 = 0, state:wait1"...======================================================
+Quitting: Remote doesn't know how to detach
