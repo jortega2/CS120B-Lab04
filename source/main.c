@@ -18,7 +18,7 @@
 // wait1 - no changes to pins, stay in state until user presses PA0 to switch lights
 // on2 - turn off PB0, turn on PB1, stay in the state if user still has PBA held down to prevent unwanted changes
 // wait2 - no changes to pins, stay in state until user presses PA0 to switch lights
-enum add_states { init, interphase, inc, dec, reset } addsm;
+enum add_states { init, interphase, inc, dec, reset, wait } addsm;
 
 void add_states(){
 	//transitions
@@ -39,14 +39,20 @@ void add_states(){
 			}
 			break;
 		case inc:
-			addsm = interphase;
+			addsm = wait;
 			break;
 		case dec:
-			addsm = interphase;
+			addsm = wait;
 			break;
 		case reset:
-			addsm = interphase;
+			addsm = wait;
 			break;
+		case wait:
+			if ( PINA != 0x00){
+				addsm = wait;
+			}else{
+				addsm = interphase;
+			}
 		default:
 			addsm = interphase;
 			break;
@@ -66,6 +72,8 @@ void add_states(){
 			if (PORTC > 0x00)
                         	PORTC = (PORTC - 0x01);
                         break;
+		case wait:
+			break;
                 case reset:
 			PORTC = 0x07;
                         break;

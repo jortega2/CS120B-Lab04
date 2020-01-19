@@ -25,8 +25,8 @@
 
 echo ======================================================\n
 echo Running all tests..."\n\n
-#test sequeence from init: A0 & !A1, A0 & !A1, A0 & !A1, !A0 & A1, => PORTC: 8
-test "PINA: 0x01, 0x01, 0x01, 0x10 => PC = 0x08  state:main"
+#test sequeence from init: A0 & !A1, !A0 & !A1,  A0 & !A1,!A0 and !A1, A0 & !A1,!A0 AND !A1, !A0 & A1, => PORTC: 8
+test "PINA: 0x01,0x00, 0x01,0x00, 0x01,0x00, 0x10 0x00, => PC = 0x08  state:main"
 set addsm = init 
 setPINA 0x01
 continue 2
