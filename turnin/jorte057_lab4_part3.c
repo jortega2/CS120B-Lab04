@@ -1,4 +1,4 @@
-*	Author: jorte057
+/*	Author: jorte057
  *  Partner(s) Name: Duke Pham
  *	Lab Section:
  *	Assignment: Lab #  Exercise #
@@ -19,84 +19,76 @@
 // dec - sets PORTC = PORTC - 1 if PORTC is greater than 0. Leads to decWait state
 // incWait/decWait - wait for user to release PA0 or PA1, then goes back to interphase. This is to prevent unwanted behavior
 // reset - sets PORTC to 0x07, then unconditionally goes back to interphase state.
-enum add_states { init, interphase, inc, incWait, dec, decWait, reset } addsm;
+enum door_states { init, interphase, wait, check, unlock, lock } locksm;
 
-void add_states(){
+void lock_states(){
 	//transitions
-	switch(addsm) {
+	switch(locksm) {
 		case init:
-			addsm = interphase;
+			locksm = interphase;
 			break;
 		case interphase:
-			//PA0 & !PA1 go to inc
-			if (PINA == 0x01){
-				addsm = inc;
+			//check for first correct input: # (PA2)
+			//PA2 & !PA0 & !PA1 & !PA7
+			if (PINA == 0x04){
+				locksm = wait;
 			}
-			//PA1 & !PA0 go to dec
-			else if (PINA == 0x02){
-				addsm = dec;
+			//Lock the door if inside button pressed (PA7)
+			//PA7 & !PA0 & !PA1 & !PA2
+			else if (PINA == 0x08){
+				locksm = lock;
 			}
-			//!PA0 and !PA1 go to reset
-			else if (PINA == 0x00){
-				addsm = reset;
-			} else {// stay in interphase for anyrthing else
-				addsm = interphase;
+			 else {// stay in interphase for anyrthing else
+				locksm = interphase;
 			}
 			break;
-		case inc:
-			addsm = incWait;
+		case wait:
+			//check for relase of PA2
+			if (PINA == 0x04){
+				locksm = wait;
+			} else {
+				locksm = check;
+			}
 			break;
-		case incWait:
-			//wait for button release 
-			if (PINA == 0x01){
-				addsm = incWait;
+		case check:
+			//check for right combination: # -> y (PA2 -> PA1)
+			//PA1 & !PA0 & !PA2 & !PA7
+			if (PINA == 0x02){
+				locksm = unlock;
 			}else{
-				addsm = interphase;
+				locksm = interphase;
 			}
 			break;
-		case dec:
-			addsm = decWait;
+		case unlock:
+			//unlock door then go back to interphase
+			locksm = interphase;
 			break;
-		case decWait:
-			// wait for button release
-                        if (PINA == 0x02){
-                                addsm = decWait;
-                        }else{
-                                addsm = interphase;
-                        }
-			break;
-		case reset:
-			addsm = interphase;
+		case lock:
+			// lock door then go back to interphase
+			locksm = interphase;
 			break;
 		default:
-			addsm = interphase;
+			locksm = interphase;
 			break;
 	}//transitions
 	
 	//state actions
-	switch(addsm) {
+	switch(locksm) {
                 case init:
-			PORTC = 0x07;
+			PORTB = 0x00;
                         break;
                 case interphase:
 			break;
-                case inc:
-			// Add 1 to PORTC but doesn't surpass 9
-			if (PORTC < 0x09)
-				PORTC = (PORTC + 0x01);
+                case wait:
                         break;
-		case incWait:
+		case check:
 			break;
-                case dec:
-			//Subtract 1 to PORTC but doesn't go below 0
-			if (PORTC > 0x00)
-                        	PORTC = (PORTC - 0x01);
+                case unlock:
+			PORTB = 0x01;
                         break;
-		case decWait:
+		case lock:
+			PORTB = 0x00;
 			break;
-                case reset:
-			PORTC = 0x07;
-                        break;
                 default:
                         break;
         }//state actins
@@ -104,12 +96,14 @@ void add_states(){
 int main(void) {
     /* Insert DDR and PORT initializations */
 	DDRA = 0x00; PORTA = 0xFF;
-	DDRC = 0xFF; PORTC = 0x00;
-	PORTC = 0x07;
-	addsm  = init;
+	DDRB = 0xFF; PORTB = 0x00;
+	PORTB = 0x00;
+	locksm  = init;
     /* Insert your solution below */
     while (1) {
-	add_states();
+	//reset to locked for each test case
+	PORTB = 0x00;
+	lock_states();
     }
     return 1;
 }
