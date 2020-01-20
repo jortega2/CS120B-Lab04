@@ -1,7 +1,7 @@
-/*	Author: jorte057
- *  Partner(s) Name: Duke Pham
- *	Lab Section:
- *	Assignment: Lab #  Exercise #
+/*	Author: jorte057 - Juvenal Ortega
+ *  Partner(s) Name: Duke Pham - dpham073@ucr.edu
+ *	Lab Section: 022
+ *	Assignment: Lab 4  Exercise 1
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
